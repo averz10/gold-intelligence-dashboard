@@ -91,48 +91,121 @@ st.markdown("""
 st.markdown("""
 <style>
 /* ------------------------------------------------------------
-   SIDEBAR VISIBILITY FIX
+   SIDEBAR POLISH - DARK, READABLE, CLEAN
 ------------------------------------------------------------ */
+
+/* Sidebar container */
 [data-testid="stSidebar"] {
-    background: #0b111c !important;
+    background: #070b12 !important;
+    border-right: 1px solid #1f2937 !important;
 }
 
+/* Sidebar inner padding */
+[data-testid="stSidebar"] > div {
+    padding-top: 1.2rem !important;
+}
+
+/* General sidebar text */
 [data-testid="stSidebar"] * {
-    color: #f8fafc !important;
+    color: #e5e7eb !important;
     opacity: 1 !important;
 }
 
-[data-testid="stSidebar"] h1,
-[data-testid="stSidebar"] h2,
-[data-testid="stSidebar"] h3,
-[data-testid="stSidebar"] label {
+/* Main title */
+[data-testid="stSidebar"] h1 {
     color: #ffffff !important;
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 0.35rem !important;
+}
+
+/* Section headers */
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 {
+    color: #ffffff !important;
+    font-size: 1rem !important;
+    font-weight: 800 !important;
+    margin-top: 1.2rem !important;
+    margin-bottom: 0.6rem !important;
+}
+
+/* Labels */
+[data-testid="stSidebar"] label {
+    color: #f8fafc !important;
+    font-size: 0.82rem !important;
     font-weight: 700 !important;
 }
 
-[data-testid="stSidebar"] p,
-[data-testid="stSidebar"] span,
-[data-testid="stSidebar"] div {
-    color: #e5e7eb !important;
+/* Captions / help text */
+[data-testid="stSidebar"] p {
+    color: #cbd5e1 !important;
+    font-size: 0.82rem !important;
 }
 
-[data-testid="stSidebar"] .stButton > button {
-    background: #fbbf24 !important;
-    color: #111827 !important;
-    border: 1px solid #facc15 !important;
-    font-weight: 700 !important;
+/* Divider lines */
+[data-testid="stSidebar"] hr {
+    border-color: #1f2937 !important;
+    margin-top: 1.2rem !important;
+    margin-bottom: 1.2rem !important;
 }
 
+/* Text areas and text inputs */
 [data-testid="stSidebar"] textarea,
 [data-testid="stSidebar"] input {
     background: #111827 !important;
     color: #ffffff !important;
     border: 1px solid #374151 !important;
+    border-radius: 8px !important;
 }
 
-[data-testid="stSidebar"] [data-baseweb="select"] {
+/* Select/dropdown box */
+[data-testid="stSidebar"] [data-baseweb="select"] > div {
     background: #111827 !important;
     color: #ffffff !important;
+    border: 1px solid #374151 !important;
+    border-radius: 8px !important;
+}
+
+/* Select/dropdown text */
+[data-testid="stSidebar"] [data-baseweb="select"] span {
+    color: #ffffff !important;
+}
+
+/* Buttons */
+[data-testid="stSidebar"] .stButton > button {
+    background: #fbbf24 !important;
+    color: #111827 !important;
+    border: 1px solid #facc15 !important;
+    border-radius: 9px !important;
+    font-weight: 800 !important;
+    padding: 0.55rem 0.75rem !important;
+}
+
+/* Button hover */
+[data-testid="stSidebar"] .stButton > button:hover {
+    background: #f59e0b !important;
+    color: #111827 !important;
+    border-color: #fbbf24 !important;
+}
+
+/* Slider track */
+[data-testid="stSidebar"] [data-testid="stSlider"] div {
+    color: #fbbf24 !important;
+}
+
+/* Toggle label */
+[data-testid="stSidebar"] [data-testid="stCheckbox"] label,
+[data-testid="stSidebar"] [data-testid="stToggle"] label {
+    color: #f8fafc !important;
+    font-weight: 700 !important;
+}
+
+/* Make sidebar section spacing cleaner */
+[data-testid="stSidebar"] .stTextArea,
+[data-testid="stSidebar"] .stSelectbox,
+[data-testid="stSidebar"] .stSlider,
+[data-testid="stSidebar"] .stButton {
+    margin-bottom: 0.75rem !important;
 }
 </style>
 """, unsafe_allow_html=True)

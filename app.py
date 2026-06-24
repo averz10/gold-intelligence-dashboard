@@ -84,9 +84,58 @@ st.markdown("""
         margin-bottom: 10px;
     }
     a { color: #9ccaff !important; }
+
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+/* ------------------------------------------------------------
+   SIDEBAR VISIBILITY FIX
+------------------------------------------------------------ */
+[data-testid="stSidebar"] {
+    background: #0b111c !important;
+}
+
+[data-testid="stSidebar"] * {
+    color: #f8fafc !important;
+    opacity: 1 !important;
+}
+
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] label {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] div {
+    color: #e5e7eb !important;
+}
+
+[data-testid="stSidebar"] .stButton > button {
+    background: #fbbf24 !important;
+    color: #111827 !important;
+    border: 1px solid #facc15 !important;
+    font-weight: 700 !important;
+}
+
+[data-testid="stSidebar"] textarea,
+[data-testid="stSidebar"] input {
+    background: #111827 !important;
+    color: #ffffff !important;
+    border: 1px solid #374151 !important;
+}
+
+[data-testid="stSidebar"] [data-baseweb="select"] {
+    background: #111827 !important;
+    color: #ffffff !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ------------------------------------------------------------
 # GENERIC SCORING HELPERS

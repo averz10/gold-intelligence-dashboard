@@ -318,6 +318,84 @@ st.markdown("""
 # ------------------------------------------------------------
 # GENERIC SCORING HELPERS
 # ------------------------------------------------------------
+
+st.markdown("""
+<style>
+/* ------------------------------------------------------------
+   V10.2 BUTTON TEXT VISIBILITY FIX
+   Streamlit buttons contain nested p/span elements, so the
+   button text needs its own explicit override.
+------------------------------------------------------------ */
+
+/* Sidebar buttons - yellow with dark readable text */
+[data-testid="stSidebar"] .stButton > button,
+[data-testid="stSidebar"] .stButton > button:focus,
+[data-testid="stSidebar"] .stButton > button:active {
+    background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%) !important;
+    border: 1px solid #d99706 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 0 1px rgba(251,191,36,0.18), 0 8px 18px rgba(0,0,0,0.22) !important;
+}
+
+/* Force readable text inside buttons */
+[data-testid="stSidebar"] .stButton > button *,
+[data-testid="stSidebar"] .stButton > button p,
+[data-testid="stSidebar"] .stButton > button span,
+[data-testid="stSidebar"] .stButton > button div {
+    color: #111827 !important;
+    opacity: 1 !important;
+    font-weight: 850 !important;
+    text-shadow: none !important;
+}
+
+/* Hover state */
+[data-testid="stSidebar"] .stButton > button:hover {
+    background: #f59e0b !important;
+    border-color: #fbbf24 !important;
+}
+
+[data-testid="stSidebar"] .stButton > button:hover *,
+[data-testid="stSidebar"] .stButton > button:hover p,
+[data-testid="stSidebar"] .stButton > button:hover span {
+    color: #111827 !important;
+}
+
+/* Disabled buttons - still readable */
+[data-testid="stSidebar"] .stButton > button:disabled,
+[data-testid="stSidebar"] .stButton > button:disabled * {
+    background: #374151 !important;
+    color: #cbd5e1 !important;
+    border-color: #4b5563 !important;
+    opacity: 0.95 !important;
+}
+
+/* Download buttons in main content */
+.stDownloadButton > button,
+.stDownloadButton > button:focus,
+.stDownloadButton > button:active {
+    background: #111827 !important;
+    border: 1px solid #374151 !important;
+    border-radius: 10px !important;
+}
+
+.stDownloadButton > button *,
+.stDownloadButton > button p,
+.stDownloadButton > button span {
+    color: #f8fafc !important;
+    opacity: 1 !important;
+    font-weight: 750 !important;
+}
+
+/* Main content buttons, if any */
+[data-testid="stAppViewContainer"] .stButton > button *,
+[data-testid="stAppViewContainer"] .stButton > button p,
+[data-testid="stAppViewContainer"] .stButton > button span {
+    opacity: 1 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 def score_direction(label: str, weight: float):
     label_lower = str(label).lower()
 
@@ -1333,7 +1411,7 @@ geo = manual_geo
 st.markdown("<div class='small-muted'>KILLZONE-STYLE GOLD INTELLIGENCE MVP</div>", unsafe_allow_html=True)
 st.title("XAU / USD Macro Bias Dashboard")
 st.caption("Bias filter only. Entries still come from TradingView structure.")
-st.markdown("<div class='small-muted'>VERSION V10.1 · UI POLISH · DARK TABLES · SUPABASE LOGGING</div>", unsafe_allow_html=True)
+st.markdown("<div class='small-muted'>VERSION V10.2 · UI POLISH · BUTTON FIX · DARK TABLES · SUPABASE LOGGING</div>", unsafe_allow_html=True)
 
 if st.session_state.market_error:
     st.warning(f"Market data issue: {st.session_state.market_error}")

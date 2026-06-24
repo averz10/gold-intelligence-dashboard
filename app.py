@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 import io
 import json
+import html
 
 try:
     import yfinance as yf
@@ -84,131 +85,235 @@ st.markdown("""
         margin-bottom: 10px;
     }
     a { color: #9ccaff !important; }
-
 </style>
 """, unsafe_allow_html=True)
+
 
 st.markdown("""
 <style>
 /* ------------------------------------------------------------
-   SIDEBAR POLISH - DARK, READABLE, CLEAN
+   V10.1 UI POLISH
 ------------------------------------------------------------ */
+
+/* App base */
+.stApp {
+    background: #070a10 !important;
+}
 
 /* Sidebar container */
 [data-testid="stSidebar"] {
-    background: #070b12 !important;
-    border-right: 1px solid #1f2937 !important;
+    background: linear-gradient(180deg, #080d16 0%, #05080d 100%) !important;
+    border-right: 1px solid #1e293b !important;
 }
 
-/* Sidebar inner padding */
+/* Sidebar spacing */
 [data-testid="stSidebar"] > div {
-    padding-top: 1.2rem !important;
+    padding-top: 1.1rem !important;
+    padding-left: 0.9rem !important;
+    padding-right: 0.9rem !important;
 }
 
-/* General sidebar text */
+/* Sidebar text */
 [data-testid="stSidebar"] * {
     color: #e5e7eb !important;
     opacity: 1 !important;
 }
 
-/* Main title */
+/* Sidebar title */
 [data-testid="stSidebar"] h1 {
     color: #ffffff !important;
-    font-size: 1.35rem !important;
-    font-weight: 800 !important;
-    margin-bottom: 0.35rem !important;
+    font-size: 1.32rem !important;
+    font-weight: 850 !important;
+    letter-spacing: -0.01rem !important;
 }
 
-/* Section headers */
+/* Section titles */
 [data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3 {
     color: #ffffff !important;
-    font-size: 1rem !important;
-    font-weight: 800 !important;
-    margin-top: 1.2rem !important;
-    margin-bottom: 0.6rem !important;
+    font-size: 0.98rem !important;
+    font-weight: 850 !important;
+    margin-top: 0.9rem !important;
+    margin-bottom: 0.45rem !important;
 }
 
-/* Labels */
+/* Sidebar labels */
 [data-testid="stSidebar"] label {
     color: #f8fafc !important;
-    font-size: 0.82rem !important;
-    font-weight: 700 !important;
+    font-size: 0.80rem !important;
+    font-weight: 750 !important;
 }
 
-/* Captions / help text */
+/* Captions */
 [data-testid="stSidebar"] p {
-    color: #cbd5e1 !important;
-    font-size: 0.82rem !important;
+    color: #aab6c7 !important;
+    font-size: 0.80rem !important;
+    line-height: 1.35rem !important;
 }
 
-/* Divider lines */
+/* Dividers */
 [data-testid="stSidebar"] hr {
-    border-color: #1f2937 !important;
-    margin-top: 1.2rem !important;
-    margin-bottom: 1.2rem !important;
+    border-color: #1e293b !important;
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Expander container */
+[data-testid="stSidebar"] [data-testid="stExpander"] {
+    background: #0b1220 !important;
+    border: 1px solid #1f2a3b !important;
+    border-radius: 12px !important;
+    margin-bottom: 0.65rem !important;
+    overflow: hidden !important;
+}
+
+/* Expander header */
+[data-testid="stSidebar"] [data-testid="stExpander"] details summary {
+    background: #101827 !important;
+    border-radius: 10px !important;
+    min-height: 2.4rem !important;
 }
 
 /* Text areas and text inputs */
 [data-testid="stSidebar"] textarea,
 [data-testid="stSidebar"] input {
-    background: #111827 !important;
+    background: #0b111c !important;
     color: #ffffff !important;
-    border: 1px solid #374151 !important;
-    border-radius: 8px !important;
+    border: 1px solid #2b3648 !important;
+    border-radius: 9px !important;
+    box-shadow: none !important;
 }
 
-/* Select/dropdown box */
+/* Text area focus */
+[data-testid="stSidebar"] textarea:focus,
+[data-testid="stSidebar"] input:focus {
+    border: 1px solid #fbbf24 !important;
+    box-shadow: 0 0 0 1px rgba(251,191,36,0.35) !important;
+}
+
+/* Select boxes */
 [data-testid="stSidebar"] [data-baseweb="select"] > div {
-    background: #111827 !important;
+    background: #0b111c !important;
     color: #ffffff !important;
-    border: 1px solid #374151 !important;
-    border-radius: 8px !important;
+    border: 1px solid #2b3648 !important;
+    border-radius: 9px !important;
+    min-height: 2.35rem !important;
 }
 
-/* Select/dropdown text */
-[data-testid="stSidebar"] [data-baseweb="select"] span {
+/* Select text */
+[data-testid="stSidebar"] [data-baseweb="select"] span,
+[data-testid="stSidebar"] [data-baseweb="select"] div {
     color: #ffffff !important;
 }
 
 /* Buttons */
 [data-testid="stSidebar"] .stButton > button {
-    background: #fbbf24 !important;
+    background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%) !important;
     color: #111827 !important;
-    border: 1px solid #facc15 !important;
-    border-radius: 9px !important;
-    font-weight: 800 !important;
+    border: 1px solid #d99706 !important;
+    border-radius: 10px !important;
+    font-weight: 850 !important;
     padding: 0.55rem 0.75rem !important;
+    box-shadow: 0 0 0 1px rgba(251,191,36,0.15), 0 8px 18px rgba(0,0,0,0.22) !important;
 }
 
-/* Button hover */
+/* Secondary button style */
 [data-testid="stSidebar"] .stButton > button:hover {
     background: #f59e0b !important;
     color: #111827 !important;
     border-color: #fbbf24 !important;
 }
 
-/* Slider track */
-[data-testid="stSidebar"] [data-testid="stSlider"] div {
-    color: #fbbf24 !important;
+/* Toggle */
+[data-testid="stSidebar"] [data-testid="stToggle"] {
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.7rem !important;
 }
 
-/* Toggle label */
-[data-testid="stSidebar"] [data-testid="stCheckbox"] label,
-[data-testid="stSidebar"] [data-testid="stToggle"] label {
-    color: #f8fafc !important;
-    font-weight: 700 !important;
+/* Slider value and labels */
+[data-testid="stSidebar"] [data-testid="stSlider"] {
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.45rem !important;
 }
 
-/* Make sidebar section spacing cleaner */
+/* Sidebar widget spacing */
 [data-testid="stSidebar"] .stTextArea,
 [data-testid="stSidebar"] .stSelectbox,
 [data-testid="stSidebar"] .stSlider,
 [data-testid="stSidebar"] .stButton {
-    margin-bottom: 0.75rem !important;
+    margin-bottom: 0.7rem !important;
+}
+
+/* Main section cards */
+.section-card {
+    background: linear-gradient(135deg, #0d1420 0%, #080c13 100%) !important;
+    border: 1px solid #202a39 !important;
+}
+
+/* Dark HTML tables */
+.dark-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #232d3b;
+    border-radius: 12px;
+    background: #080c13;
+    margin-top: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.dark-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    color: #e5e7eb;
+    min-width: 900px;
+}
+
+.dark-table thead th {
+    background: #151b26;
+    color: #cbd5e1;
+    text-align: left;
+    padding: 0.72rem 0.75rem;
+    font-weight: 800;
+    border-bottom: 1px solid #263244;
+    white-space: nowrap;
+}
+
+.dark-table tbody td {
+    padding: 0.68rem 0.75rem;
+    border-bottom: 1px solid #1f2937;
+    white-space: nowrap;
+    color: #f3f4f6;
+}
+
+.dark-table tbody tr:nth-child(even) td {
+    background: #0b111a;
+}
+
+.dark-table tbody tr:hover td {
+    background: #111827;
+}
+
+.dark-table a {
+    color: #93c5fd !important;
+    text-decoration: none !important;
+}
+
+.dark-table .muted-cell {
+    color: #94a3b8 !important;
+}
+
+/* Small cards */
+.clean-note {
+    color: #aab6c7;
+    font-size: 0.9rem;
+    margin-top: -0.2rem;
+    margin-bottom: 0.9rem;
 }
 </style>
 """, unsafe_allow_html=True)
+
+
 
 # ------------------------------------------------------------
 # GENERIC SCORING HELPERS
@@ -904,6 +1009,54 @@ def clear_score_history():
 
 
 
+
+# ------------------------------------------------------------
+# DARK TABLE RENDERER
+# ------------------------------------------------------------
+def render_dark_table(df, max_rows=None, empty_message="No rows to display."):
+    if df is None or df.empty:
+        st.info(empty_message)
+        return
+
+    view = df.copy()
+
+    if max_rows is not None:
+        view = view.head(max_rows)
+
+    def fmt_value(value):
+        if pd.isna(value):
+            return "<span class='muted-cell'>None</span>"
+
+        text = str(value)
+
+        if text.startswith("http://") or text.startswith("https://"):
+            safe_url = html.escape(text, quote=True)
+            return f"<a href='{safe_url}' target='_blank'>Open link</a>"
+
+        if len(text) > 90:
+            text = text[:87] + "..."
+
+        return html.escape(text)
+
+    headers = "".join(f"<th>{html.escape(str(col))}</th>" for col in view.columns)
+
+    body_rows = []
+    for _, row in view.iterrows():
+        cells = "".join(f"<td>{fmt_value(row[col])}</td>" for col in view.columns)
+        body_rows.append(f"<tr>{cells}</tr>")
+
+    table_html = f"""
+    <div class="dark-table-wrap">
+        <table class="dark-table">
+            <thead><tr>{headers}</tr></thead>
+            <tbody>{''.join(body_rows)}</tbody>
+        </table>
+    </div>
+    """
+
+    st.markdown(table_html, unsafe_allow_html=True)
+
+
 # ------------------------------------------------------------
 # OPTIONAL SUPABASE LOGGER
 # ------------------------------------------------------------
@@ -1033,11 +1186,12 @@ for key, value in defaults.items():
 # SIDEBAR
 # ------------------------------------------------------------
 st.sidebar.title("Gold Intelligence MVP")
-st.sidebar.caption("V10: Supabase persistent logging.")
+st.sidebar.caption("V10.1 · cleaner sidebar · dark tables · Supabase logging")
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("Market Data")
-auto_macro = st.sidebar.toggle("Use automatic macro drivers", value=True)
+st.sidebar.subheader("Quick Actions")
+
+auto_macro = st.sidebar.toggle("Auto macro drivers", value=True)
 fetch_market = st.sidebar.button("Fetch market data now", type="primary")
 
 if fetch_market:
@@ -1051,25 +1205,24 @@ if fetch_market:
         except Exception as e:
             st.session_state.market_error = str(e)
 
-st.sidebar.markdown("---")
-st.sidebar.subheader("Fed Tone Intelligence")
-auto_fed = st.sidebar.toggle("Use automatic Fed tone", value=True)
+with st.sidebar.expander("Fed Tone Intelligence", expanded=False):
+    auto_fed = st.toggle("Use automatic Fed tone", value=True)
 
-fed_query = st.sidebar.text_area(
-    "Fed tone search query",
-    value='"Federal Reserve" OR FOMC OR Powell OR "Fed officials" OR "interest rates" OR "rate cuts" OR "rate hike" OR "higher for longer"',
-    height=70
-)
+    fed_query = st.text_area(
+        "Fed tone search query",
+        value='"Federal Reserve" OR FOMC OR Powell OR "Fed officials" OR "interest rates" OR "rate cuts" OR "rate hike" OR "higher for longer"',
+        height=80
+    )
 
-fed_max_records = st.sidebar.slider(
-    "Fed articles",
-    min_value=5,
-    max_value=30,
-    value=10,
-    step=5
-)
+    fed_max_records = st.slider(
+        "Fed articles",
+        min_value=5,
+        max_value=30,
+        value=10,
+        step=5
+    )
 
-fetch_fed = st.sidebar.button("Fetch Fed tone now")
+    fetch_fed = st.button("Fetch Fed tone now")
 
 if fetch_fed:
     with st.spinner("Fetching Fed tone news..."):
@@ -1079,25 +1232,23 @@ if fetch_fed:
         st.session_state.fed_result = fed_tone_from_df(df)
         st.session_state.last_fed_fetch = datetime.now(timezone.utc)
 
-st.sidebar.markdown("---")
-st.sidebar.subheader("Gold News Feed")
+with st.sidebar.expander("Gold News Feed", expanded=False):
+    gold_query = st.text_area(
+        "Gold news search query",
+        value='"gold price" OR XAUUSD OR "spot gold" OR "gold futures" OR bullion OR "gold forecast"',
+        height=90
+    )
 
-gold_query = st.sidebar.text_area(
-    "Gold news search query",
-    value='"gold price" OR XAUUSD OR "spot gold" OR "gold futures" OR bullion OR "gold forecast"',
-    height=90
-)
+    gold_max_records = st.slider(
+        "Gold articles",
+        min_value=5,
+        max_value=30,
+        value=10,
+        step=5
+    )
 
-gold_max_records = st.sidebar.slider(
-    "Gold articles",
-    min_value=5,
-    max_value=30,
-    value=10,
-    step=5
-)
-
-fetch_news = st.sidebar.button("Fetch gold news now")
-clear_news = st.sidebar.button("Clear gold news cache")
+    fetch_news = st.button("Fetch gold news now")
+    clear_news = st.button("Clear gold news cache")
 
 if fetch_news:
     with st.spinner("Fetching filtered gold news..."):
@@ -1111,34 +1262,43 @@ if clear_news:
     st.session_state.news_error = None
     st.session_state.last_news_fetch = None
 
-st.sidebar.markdown("---")
-st.sidebar.subheader("Manual / Override Drivers")
+with st.sidebar.expander("Manual Overrides", expanded=False):
+    manual_dxy = st.selectbox("DXY / USD", ["Flat / mixed", "Stronger USD — opposes gold", "Weaker USD — supports gold"], index=0)
+    manual_nominal_yields = st.selectbox("US 10Y yield", ["Flat / mixed", "Rising yields — opposes gold", "Falling yields — supports gold"], index=0)
+    manual_real_yields = st.selectbox("US real yields", ["Flat / mixed", "Rising real yields — opposes gold", "Falling real yields — supports gold"], index=0)
+    manual_fed_tone = st.selectbox("Fed tone", ["Flat / mixed", "Hawkish Fed — opposes gold", "Dovish Fed — supports gold"], index=0)
+    manual_geo = st.selectbox("Geopolitical risk", ["Flat / mixed", "De-escalation / ceasefire — opposes gold", "Escalation / safe-haven demand — supports gold"], index=0)
+    manual_risk_mood = st.selectbox("Risk sentiment", ["Flat / mixed", "Risk-on — opposes gold", "Risk-off — supports gold"], index=0)
 
-manual_dxy = st.sidebar.selectbox("DXY / USD", ["Flat / mixed", "Stronger USD — opposes gold", "Weaker USD — supports gold"], index=0)
-manual_nominal_yields = st.sidebar.selectbox("US 10Y yield", ["Flat / mixed", "Rising yields — opposes gold", "Falling yields — supports gold"], index=0)
-manual_real_yields = st.sidebar.selectbox("US real yields", ["Flat / mixed", "Rising real yields — opposes gold", "Falling real yields — supports gold"], index=0)
-manual_fed_tone = st.sidebar.selectbox("Fed tone", ["Flat / mixed", "Hawkish Fed — opposes gold", "Dovish Fed — supports gold"], index=0)
-manual_geo = st.sidebar.selectbox("Geopolitical risk", ["Flat / mixed", "De-escalation / ceasefire — opposes gold", "Escalation / safe-haven demand — supports gold"], index=0)
-manual_risk_mood = st.sidebar.selectbox("Risk sentiment", ["Flat / mixed", "Risk-on — opposes gold", "Risk-off — supports gold"], index=0)
-
-st.sidebar.markdown("---")
-st.sidebar.subheader("Weights")
-w_dxy = st.sidebar.slider("DXY weight", 0, 40, 20)
-w_nominal_yields = st.sidebar.slider("US10Y weight", 0, 40, 15)
-w_real_yields = st.sidebar.slider("Real yield weight", 0, 40, 25)
-w_fed = st.sidebar.slider("Fed tone weight", 0, 30, 15)
-w_geo = st.sidebar.slider("Geopolitical weight", 0, 30, 15)
-w_risk = st.sidebar.slider("Risk sentiment weight", 0, 20, 5)
-w_news = st.sidebar.slider("Gold news weight", 0, 40, 10)
+with st.sidebar.expander("Model Weights", expanded=False):
+    w_dxy = st.slider("DXY weight", 0, 40, 20)
+    w_nominal_yields = st.slider("US10Y weight", 0, 40, 15)
+    w_real_yields = st.slider("Real yield weight", 0, 40, 25)
+    w_fed = st.slider("Fed tone weight", 0, 30, 15)
+    w_geo = st.slider("Geopolitical weight", 0, 30, 15)
+    w_risk = st.slider("Risk sentiment weight", 0, 20, 5)
+    w_news = st.slider("Gold news weight", 0, 40, 10)
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("Score Logger")
-st.sidebar.caption("Use this during London / New York review to build evidence over time.")
-snapshot_note = st.sidebar.text_area("Snapshot note", value="", height=70, help="Optional: add chart context, e.g. London sweep + bearish MSS.")
-save_to_supabase = st.sidebar.toggle("Also save to Supabase", value=False, help="Requires Streamlit secrets. Local CSV still works without this.")
-save_snapshot_clicked = st.sidebar.button("Save current bias snapshot")
-clear_history_clicked = st.sidebar.button("Clear local score history")
-load_supabase_clicked = st.sidebar.button("Load Supabase history")
+st.sidebar.caption("Save snapshots during London / New York review to build evidence over time.")
+
+snapshot_note = st.sidebar.text_area(
+    "Snapshot note",
+    value="",
+    height=80,
+    help="Optional: add chart context, e.g. London sweep + bearish MSS."
+)
+
+save_to_supabase = st.sidebar.toggle(
+    "Also save to Supabase",
+    value=False,
+    help="Requires Streamlit secrets. Local CSV still works without this."
+)
+
+save_snapshot_clicked = st.sidebar.button("Save bias snapshot")
+clear_history_clicked = st.sidebar.button("Clear local history")
+load_supabase_clicked = st.sidebar.button("Load cloud history")
 
 # ------------------------------------------------------------
 # ACTIVE DRIVERS
@@ -1173,7 +1333,7 @@ geo = manual_geo
 st.markdown("<div class='small-muted'>KILLZONE-STYLE GOLD INTELLIGENCE MVP</div>", unsafe_allow_html=True)
 st.title("XAU / USD Macro Bias Dashboard")
 st.caption("Bias filter only. Entries still come from TradingView structure.")
-st.markdown("<div class='small-muted'>VERSION V10 · SPOT XAUUSD · SCORE LOGGER · SUPABASE PERSISTENT LOGGING</div>", unsafe_allow_html=True)
+st.markdown("<div class='small-muted'>VERSION V10.1 · UI POLISH · DARK TABLES · SUPABASE LOGGING</div>", unsafe_allow_html=True)
 
 if st.session_state.market_error:
     st.warning(f"Market data issue: {st.session_state.market_error}")
@@ -1341,7 +1501,7 @@ st.caption("Use this to validate the tool. Save snapshots before London / New Yo
 if history_df.empty:
     st.info("No snapshots saved yet. Add an optional note in the sidebar, then press **Save current bias snapshot**.")
 else:
-    st.dataframe(history_df.tail(25).sort_index(ascending=False), use_container_width=True, hide_index=True)
+    render_dark_table(history_df.tail(25).sort_index(ascending=False), empty_message='No local snapshots saved yet.')
     csv_bytes = history_df.to_csv(index=False).encode("utf-8")
     st.download_button(
         label="Download local score history CSV",
@@ -1358,7 +1518,7 @@ if st.session_state.last_supabase_load_status:
 
 if not st.session_state.supabase_history_df.empty:
     st.subheader("Supabase Cloud History")
-    st.dataframe(st.session_state.supabase_history_df, use_container_width=True, hide_index=True)
+    render_dark_table(st.session_state.supabase_history_df, empty_message='No Supabase history loaded yet.')
     cloud_csv = st.session_state.supabase_history_df.to_csv(index=False).encode("utf-8")
     st.download_button(
         label="Download Supabase history CSV",
@@ -1395,15 +1555,7 @@ st.markdown(f"<div class='summary-box'>{fed_result.get('reason', 'No Fed tone da
 if st.session_state.fed_df.empty:
     st.info("No Fed tone articles loaded yet. Press **Fetch Fed tone now** in the sidebar.")
 else:
-    st.dataframe(
-        st.session_state.fed_df,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "URL": st.column_config.LinkColumn("Source link"),
-            "Title": st.column_config.TextColumn("Title", width="large"),
-        }
-    )
+    render_dark_table(st.session_state.fed_df, empty_message='No Fed tone rows to display.')
 
 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -1433,15 +1585,7 @@ if not summary_lines:
 
 st.markdown("<div class='summary-box'>" + "<br>".join(summary_lines) + "</div>", unsafe_allow_html=True)
 
-st.dataframe(
-    driver_df,
-    use_container_width=True,
-    hide_index=True,
-    column_config={
-        "Why it matters": st.column_config.TextColumn("Why it matters", width="large"),
-        "State": st.column_config.TextColumn("State", width="large"),
-    }
-)
+render_dark_table(driver_df, empty_message='No driver rows to display.')
 
 with st.expander("Plain-English read"):
     if oppose_pct >= 65:
@@ -1483,7 +1627,7 @@ else:
             "Date": r.get("Date"),
             "Error": r.get("Error") or ""
         })
-    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    render_dark_table(pd.DataFrame(rows), empty_message='No market rows to display.')
 
 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -1526,15 +1670,7 @@ else:
     b.metric("Opposing articles", oppose_news_count)
     c.metric("Neutral / unclear", neutral_news_count)
 
-    st.dataframe(
-        article_df[["Time", "Source", "Title", "Classification", "Matched terms", "URL"]],
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "URL": st.column_config.LinkColumn("Source link"),
-            "Title": st.column_config.TextColumn("Title", width="large"),
-        }
-    )
+    render_dark_table(article_df[["Time", "Source", "Title", "Classification", "Matched terms", "URL"]], empty_message="No gold news rows to display.")
 
 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -1563,7 +1699,7 @@ rules = pd.DataFrame([
     {"Condition": "45%–55% mixed", "Permission": "No trade or reduced risk", "Chart confirmation required": "Wait for clean alignment"},
     {"Condition": "Major news within 30 minutes", "Permission": "Avoid new trades", "Chart confirmation required": "Wait for post-news structure"},
 ])
-st.dataframe(rules, use_container_width=True, hide_index=True)
+render_dark_table(rules, empty_message='No rule rows to display.')
 st.markdown("</div>", unsafe_allow_html=True)
 
 st.caption(f"Last dashboard refresh: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}")

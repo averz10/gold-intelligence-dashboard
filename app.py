@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 import io
 import json
+import uuid
 import html
 
 try:
@@ -999,6 +1000,11 @@ def build_snapshot(
     fed_result,
     geo,
     article_df,
+    chart_screenshot_url=None,
+    chart_screenshot_path=None,
+    chart_screenshot_filename=None,
+    chart_timeframe="",
+    chart_setup_tag="",
 ):
     now = datetime.now(timezone.utc)
 
@@ -1049,6 +1055,11 @@ def build_snapshot(
         "gold_news_state": state_for("Gold news"),
         "gold_news_articles": 0 if article_df.empty else len(article_df),
         "notes": "",
+        "chart_screenshot_url": chart_screenshot_url or "",
+        "chart_screenshot_path": chart_screenshot_path or "",
+        "chart_screenshot_filename": chart_screenshot_filename or "",
+        "chart_timeframe": chart_timeframe or "",
+        "chart_setup_tag": chart_setup_tag or "",
         "price_1h_later": "",
         "price_4h_later": "",
         "bias_result_1h": "",
@@ -1150,14 +1161,21 @@ def supabase_config_available():
 
 def clean_snapshot_for_supabase(snapshot):
     """
-    Supabase/Postgres prefers None over blank strings for numeric/date columns.
+    Keep the Supabase payload clean. Blank / None values are omitted so optional
+    columns do not break older tables.
     """
     cleaned = {}
     for key, value in snapshot.items():
-        if value == "":
-            cleaned[key] = None
-        else:
-            cleaned[key] = value
+        try:
+            if value is None:
+                continue
+            if isinstance(value, str) and value.strip() == "":
+                continue
+            if pd.isna(value):
+                continue
+        except Exception:
+            pass
+        cleaned[key] = value
     return cleaned
 
 
@@ -1190,6 +1208,54 @@ def append_snapshot_to_supabase(snapshot):
 
     except Exception as e:
         return False, f"Supabase save failed: {e}"
+
+
+
+def upload_screenshot_to_supabase(uploaded_file, timestamp_utc):
+    """
+    Upload a TradingView screenshot to Supabase Storage and return a public URL.
+    Requires a public bucket, default name: chart-screenshots.
+    """
+    if uploaded_file is None:
+        return None, None, None
+
+    if not supabase_config_available():
+        return None, None, "Supabase is not configured. Screenshot was not uploaded."
+
+    try:
+        supabase_url = str(st.secrets["supabase_url"]).rstrip("/")
+        supabase_key = str(st.secrets["supabase_key"])
+        bucket_name = str(st.secrets.get("supabase_storage_bucket", "chart-screenshots"))
+
+        original_name = uploaded_file.name or "tradingview_screenshot.png"
+        safe_name = re.sub(r"[^a-zA-Z0-9._-]", "_", original_name)
+        extension = safe_name.split(".")[-1].lower() if "." in safe_name else "png"
+
+        ts_path = re.sub(r"[^0-9A-Za-z_-]", "_", timestamp_utc)
+        object_path = f"{timestamp_utc[:10]}/{ts_path}_{uuid.uuid4().hex[:8]}.{extension}"
+
+        endpoint = f"{supabase_url}/storage/v1/object/{bucket_name}/{object_path}"
+
+        file_bytes = uploaded_file.getvalue()
+        content_type = getattr(uploaded_file, "type", None) or "application/octet-stream"
+
+        headers = {
+            "apikey": supabase_key,
+            "Authorization": f"Bearer {supabase_key}",
+            "Content-Type": content_type,
+            "x-upsert": "false",
+        }
+
+        response = requests.post(endpoint, headers=headers, data=file_bytes, timeout=30)
+
+        if response.status_code not in (200, 201):
+            return None, object_path, f"Screenshot upload failed: {response.status_code} {response.text[:300]}"
+
+        public_url = f"{supabase_url}/storage/v1/object/public/{bucket_name}/{object_path}"
+        return public_url, object_path, "Screenshot uploaded to Supabase Storage."
+
+    except Exception as e:
+        return None, None, f"Screenshot upload failed: {e}"
 
 
 def fetch_supabase_history(limit=100):
@@ -1252,7 +1318,8 @@ defaults = {
     "last_snapshot_saved": None,
     "last_supabase_status": None,
     "supabase_history_df": pd.DataFrame(),
-    "last_supabase_load_status": None
+    "last_supabase_load_status": None,
+    "last_screenshot_status": None
 }
 
 for key, value in defaults.items():
@@ -1368,6 +1435,39 @@ snapshot_note = st.sidebar.text_area(
     help="Optional: add chart context, e.g. London sweep + bearish MSS."
 )
 
+st.sidebar.markdown("**Chart Evidence**")
+chart_timeframe = st.sidebar.selectbox(
+    "Chart timeframe",
+    ["Not set", "1m", "5m", "15m", "30m", "1H", "2H", "4H", "1D"],
+    index=0
+)
+
+chart_setup_tag = st.sidebar.selectbox(
+    "Setup tag",
+    [
+        "Not set",
+        "Asia range",
+        "London sweep",
+        "New York sweep",
+        "Bullish MSS",
+        "Bearish MSS",
+        "Bullish reclaim",
+        "Bearish rejection",
+        "No clean setup",
+        "Other",
+    ],
+    index=0
+)
+
+uploaded_chart_screenshot = st.sidebar.file_uploader(
+    "Upload TradingView screenshot",
+    type=["png", "jpg", "jpeg", "webp"],
+    help="Upload the chart screenshot that supports this bias snapshot."
+)
+
+if uploaded_chart_screenshot is not None:
+    st.sidebar.image(uploaded_chart_screenshot, caption="Screenshot ready", use_container_width=True)
+
 save_to_supabase = st.sidebar.toggle(
     "Also save to Supabase",
     value=False,
@@ -1411,7 +1511,7 @@ geo = manual_geo
 st.markdown("<div class='small-muted'>KILLZONE-STYLE GOLD INTELLIGENCE MVP</div>", unsafe_allow_html=True)
 st.title("XAU / USD Macro Bias Dashboard")
 st.caption("Bias filter only. Entries still come from TradingView structure.")
-st.markdown("<div class='small-muted'>VERSION V10.2 · UI POLISH · BUTTON FIX · DARK TABLES · SUPABASE LOGGING</div>", unsafe_allow_html=True)
+st.markdown("<div class='small-muted'>VERSION V10.3 · SCREENSHOT LOGGER · DARK TABLES · SUPABASE LOGGING</div>", unsafe_allow_html=True)
 
 if st.session_state.market_error:
     st.warning(f"Market data issue: {st.session_state.market_error}")
@@ -1497,6 +1597,19 @@ if clear_history_clicked:
     st.session_state.last_snapshot_saved = "Score history cleared."
 
 if save_snapshot_clicked:
+    save_timestamp_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+    screenshot_url = None
+    screenshot_path = None
+    screenshot_msg = None
+
+    if uploaded_chart_screenshot is not None:
+        screenshot_url, screenshot_path, screenshot_msg = upload_screenshot_to_supabase(
+            uploaded_chart_screenshot,
+            save_timestamp_utc
+        )
+        st.session_state.last_screenshot_status = screenshot_msg
+
     snapshot = build_snapshot(
         support_pct=support_pct,
         oppose_pct=oppose_pct,
@@ -1508,7 +1621,13 @@ if save_snapshot_clicked:
         fed_result=fed_result,
         geo=geo,
         article_df=article_df,
+        chart_screenshot_url=screenshot_url,
+        chart_screenshot_path=screenshot_path,
+        chart_screenshot_filename=uploaded_chart_screenshot.name if uploaded_chart_screenshot is not None else None,
+        chart_timeframe=chart_timeframe,
+        chart_setup_tag=chart_setup_tag,
     )
+    snapshot["timestamp_utc"] = save_timestamp_utc
     snapshot["notes"] = snapshot_note
     save_score_snapshot(snapshot)
     st.session_state.last_snapshot_saved = f"Saved local snapshot at {snapshot['timestamp_utc']} UTC."
@@ -1550,6 +1669,12 @@ st.subheader("Score Logger")
 
 if st.session_state.last_snapshot_saved:
     st.success(st.session_state.last_snapshot_saved)
+
+if st.session_state.last_screenshot_status:
+    if "failed" in str(st.session_state.last_screenshot_status).lower() or "not uploaded" in str(st.session_state.last_screenshot_status).lower():
+        st.warning(st.session_state.last_screenshot_status)
+    else:
+        st.success(st.session_state.last_screenshot_status)
 
 if st.session_state.last_supabase_status:
     if "failed" in st.session_state.last_supabase_status.lower() or "not configured" in st.session_state.last_supabase_status.lower():
@@ -1760,7 +1885,7 @@ st.subheader("Deployment Notes")
 
 st.write("This folder is ready to upload to GitHub and deploy to Streamlit Community Cloud.")
 st.write("For a permanent link, upload `app.py`, `requirements.txt`, `.streamlit/config.toml`, `README.md`, and `DEPLOYMENT_GUIDE.md` to a GitHub repository, then deploy the repo with main file path `app.py`.")
-st.write("Configure Supabase in Streamlit secrets if you want hosted snapshots to survive app restarts.")
+st.write("Configure Supabase plus a public chart-screenshots Storage bucket if you want hosted snapshots and chart screenshots to survive app restarts.")
 st.warning("On free cloud hosting, local CSV storage may reset if the app restarts. Use the download button regularly. V10 includes optional Supabase logging for persistent cloud history.")
 
 st.markdown("</div>", unsafe_allow_html=True)

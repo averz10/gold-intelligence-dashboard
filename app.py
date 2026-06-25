@@ -1511,7 +1511,7 @@ geo = manual_geo
 st.markdown("<div class='small-muted'>KILLZONE-STYLE GOLD INTELLIGENCE MVP</div>", unsafe_allow_html=True)
 st.title("XAU / USD Macro Bias Dashboard")
 st.caption("Bias filter only. Entries still come from TradingView structure.")
-st.markdown("<div class='small-muted'>VERSION V10.3 · SCREENSHOT LOGGER · DARK TABLES · SUPABASE LOGGING</div>", unsafe_allow_html=True)
+st.markdown("<div class='small-muted'>VERSION V10.3.1 · SCREENSHOT LOGGER · IMPORT FIX · SUPABASE LOGGING</div>", unsafe_allow_html=True)
 
 if st.session_state.market_error:
     st.warning(f"Market data issue: {st.session_state.market_error}")

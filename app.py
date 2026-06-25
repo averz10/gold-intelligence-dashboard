@@ -9,6 +9,8 @@ import io
 import json
 import uuid
 import html
+import re
+import uuid
 
 try:
     import yfinance as yf
